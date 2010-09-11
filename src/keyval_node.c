@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdio.h>
 
 struct keyval_node * keyval_node_append(struct keyval_node * head,
                                         struct keyval_node * node) {
@@ -174,4 +175,45 @@ int keyval_node_get_value_int(struct keyval_node * node) {
 
 double keyval_node_get_value_double(struct keyval_node * node) {
     return node->value ? strtod(node->value, NULL) : 0.0;
+}
+
+/* set nest to the desired indentation level in the output.
+   You probably want 0, this is mainly used internally when recursing */
+void keyval_node_debug (struct keyval_node * node, int nest) {
+	char prefix [23];
+	if (nest > 20) {
+		fprintf (stderr, "Requested ridicously high nesting level %i", nest);
+		exit(2);
+	}
+	char * p = prefix;
+	int i;
+	for (i=0; i <= nest; i++) {
+		*p = '-';
+		p++;
+	}
+	*p = '>';
+	*(p+1) = '\0';
+	printf ("%s Node name: %s", prefix, keyval_node_get_name(node));
+	printf (", comment: %s", prefix, keyval_node_get_comment(node));
+	printf (", value: ", prefix);
+	switch (keyval_node_get_value_type(node)) {
+		case KEYVAL_TYPE_NONE:
+			printf ("None"); break;
+		case KEYVAL_TYPE_BOOL:
+			printf ("Bool: %s", keyval_node_get_value_bool(node)); break;
+		case KEYVAL_TYPE_STRING:
+			printf ("String: %s", keyval_node_get_value_string(node)); break;
+		case KEYVAL_TYPE_INT:
+			printf ("Int: %i", keyval_node_get_value_int(node)); break;
+		case KEYVAL_TYPE_DOUBLE:
+			printf ("Double: %d", keyval_node_get_value_double(node)); break;
+		case KEYVAL_TYPE_LIST:
+			printf ("List"); break;
+	}
+	printf ("\n");
+	struct keyval_node * child = keyval_node_get_children(node);
+	while (child) {
+		keyval_node_debug (child, nest +1);
+		child = child->next;
+	}
 }

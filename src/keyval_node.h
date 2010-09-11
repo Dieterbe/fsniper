@@ -69,4 +69,5 @@ char * keyval_node_get_value_string(struct keyval_node * node);
 int keyval_node_get_value_int(struct keyval_node * node);
 double keyval_node_get_value_double(struct keyval_node * node);
 
+void keyval_node_debug (struct keyval_node * node, int nest);
 #endif
